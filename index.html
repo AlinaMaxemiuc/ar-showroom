@@ -1,89 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <title>AR Showroom</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- Google Model Viewer -->
-  <script type="module"
-    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-  </script>
-
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AR Car Showroom</title>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: white;
-      text-align: center;
+    body{margin:0;font-family:system-ui;background:#0f172a;color:#fff}
+    header{padding:18px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;padding:14px}
+    .card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px}
+    h2{margin:0 0 6px}
+    .muted{opacity:.85}
+    button,a.btn{
+      display:inline-block;margin-top:10px;padding:10px 12px;border-radius:12px;
+      border:0;background:#2563eb;color:#fff;font-weight:700;text-decoration:none;cursor:pointer
     }
-
-    header {
-      padding: 10px;
-    }
-
-    model-viewer {
-      width: 100%;
-      height: 85vh;
-    }
-
-    footer {
-      padding: 10px;
-      font-size: 14px;
-      opacity: 0.8;
-    }
+    .toplinks a{color:#93c5fd;text-decoration:none;margin-right:12px}
   </style>
 </head>
 
 <body>
+  <header>
+    <h2>AR Car Showroom</h2>
+    <div class="muted">Catalog web + AR Viewer (iPhone/Android). Alege o mașină și deschide AR Viewer.</div>
+    <div class="toplinks" style="margin-top:10px">
+      <a href="viewer.html">Deschide AR Viewer</a>
+      <a href="about.html">Despre</a>
+    </div>
+  </header>
 
-<header>
-  <h2>AR Car Showroom</h2>
-  <p>Apasă butonul AR pentru a vedea mașina în mărime reală</p>
-</header>
+  <div class="grid" id="catalog"></div>
 
-<model-viewer
-  src="models/bmw_m4.glb"
-  ios-src="models/bmw_m4.usdz"
-  ar
-  ar-modes="quick-look webxr scene-viewer"
-  camera-controls
-  auto-rotate
-  environment-image="neutral"
-  shadow-intensity="1"
-  exposure="1.1"
-  style="width: 100%; height: 75vh;"
->
+<script>
+  const catalog = document.getElementById('catalog');
 
-  <!-- BUTON AR VIZIBIL -->
-  <button
-    slot="ar-button"
-    style="
-      position: absolute;
-      bottom: 80px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 20px;
-      border-radius: 30px;
-      border: none;
-      background: #2563eb;
-      color: white;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    ">
-    📱 Vezi în cameră (AR)
-  </button>
-
-</model-viewer>
-
-
-
-
-<footer>
-  Proiect Realitate Augmentată – Web AR
-</footer>
-
+  fetch('data/cars.json').then(r=>r.json()).then(cars=>{
+    cars.forEach(car=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <h3 style="margin:0 0 6px">${car.name}</h3>
+        <div class="muted">GLB: ${car.glb}<br>USDZ: ${car.usdz}</div>
+        <a class="btn" href="viewer.html?car=${encodeURIComponent(car.id)}">📱 Deschide în AR Viewer</a>
+      `;
+      catalog.appendChild(card);
+    });
+  });
+</script>
 </body>
 </html>
