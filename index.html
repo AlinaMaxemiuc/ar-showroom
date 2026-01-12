@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>AR Showroom</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Google Model Viewer -->
+  <script type="module"
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    header {
+      padding: 10px;
+    }
+
+    model-viewer {
+      width: 100%;
+      height: 85vh;
+    }
+
+    footer {
+      padding: 10px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h2>AR Car Showroom</h2>
+  <p>Apasă butonul AR pentru a vedea mașina în mărime reală</p>
+</header>
+
+<model-viewer
+  src="models/bmw_m4.glb"
+  ios-src="models/bmw_m4.usdz"
+  ar
+  ar-modes="scene-viewer webxr quick-look"
+  camera-controls
+  auto-rotate
+  environment-image="neutral"
+  shadow-intensity="1"
+  exposure="1.1"
+  scale="1 1 1">
+</model-viewer>
+
+
+
+<footer>
+  Proiect Realitate Augmentată – Web AR
+</footer>
+
+</body>
+</html>
