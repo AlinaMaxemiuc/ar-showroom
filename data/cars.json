@@ -1,0 +1,38 @@
+[
+  {
+    "id": "audi_tt",
+    "name": "Audi TT",
+    "glb": "models/audi_tt.glb",
+    "usdz": "models/audi_tt.usdz"
+  },
+  {
+    "id": "bmw_e46",
+    "name": "BMW E46",
+    "glb": "models/bmw_e46.glb",
+    "usdz": "models/bmw_e46.usdz"
+  },
+  {
+    "id": "bmw_m4",
+    "name": "BMW M4",
+    "glb": "models/bmw_m4.glb",
+    "usdz": "models/bmw_m4.usdz"
+  },
+  {
+    "id": "ford_f150",
+    "name": "Ford F-150",
+    "glb": "models/ford_f150.glb",
+    "usdz": "models/ford_f150.usdz"
+  },
+  {
+    "id": "golf_r",
+    "name": "VW Golf R",
+    "glb": "models/golf_r.glb",
+    "usdz": "models/golf_r.usdz"
+  },
+  {
+    "id": "mercedes_eclass",
+    "name": "Mercedes E-Class",
+    "glb": "models/mercedes_eclass.glb",
+    "usdz": "models/mercedes_eclass.usdz"
+  }
+]
