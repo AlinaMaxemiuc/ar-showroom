@@ -8,13 +8,40 @@
   <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <style>
-    body{margin:0;font-family:system-ui;background:#0f172a;color:#fff}
-    header{padding:12px 16px}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    select{padding:10px 12px;border-radius:12px;border:0;min-width:220px}
-    a{color:#93c5fd;text-decoration:none}
-    model-viewer{width:100%;height:75vh}
-    .hint{opacity:.85;margin-top:6px}
+    body { margin: 0; font-family: system-ui; background: #0f172a; color: #fff; }
+    header { padding: 12px 16px; }
+    .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    select { padding: 10px 12px; border-radius: 12px; border: 0; min-width: 220px; }
+    a { color: #93c5fd; text-decoration: none; }
+    .hint { opacity: .85; margin-top: 6px; }
+
+    model-viewer {
+      width: 100%;
+      height: 70vh;
+      background: radial-gradient(1200px 600px at 50% 40%, rgba(255,255,255,.08), rgba(0,0,0,0));
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 12px 16px 24px;
+    }
+
+    .btn {
+      padding: 14px 22px;
+      border-radius: 30px;
+      border: 0;
+      color: #fff;
+      font-weight: 800;
+      text-decoration: none;
+      cursor: pointer;
+      display: inline-block;
+      user-select: none;
+    }
+    .btn-ios { background: #16a34a; }     /* verde */
+    .btn-android { background: #2563eb; } /* albastru */
   </style>
 </head>
 
@@ -26,66 +53,98 @@
       <a href="index.html">Catalog</a>
       <a href="about.html">Despre</a>
     </div>
-    <div class="hint">Alege o mașină și apasă butonul „Vezi în cameră (AR)”.</div>
+    <div class="hint">
+      Alege o mașină. Pe iPhone apasă butonul verde (Quick Look). Pe Android apasă butonul albastru (AR).
+    </div>
   </header>
 
-  <model-viewer id="mv"
-  ar
-  ar-modes="quick-look"
-  ar-placement="floor"
-  ar-scale="fixed"
-  camera-controls
-  auto-rotate
-  environment-image="neutral"
-  shadow-intensity="1"
-  exposure="1.1">
-  <button slot="ar-button"
-    style="position:absolute;bottom:80px;left:50%;transform:translateX(-50%);
-           padding:14px 22px;border-radius:30px;border:0;background:#2563eb;color:#fff;
-           font-size:16px;font-weight:700;">
-    📱 Vezi în cameră (AR)
-  </button>
-</model-viewer>
+  <!-- PREVIEW 3D (GLB) -->
+  <model-viewer
+    id="mv"
+    camera-controls
+    auto-rotate
+    environment-image="neutral"
+    shadow-intensity="1"
+    exposure="1.1"
+    loading="eager"
+    reveal="auto">
+  </model-viewer>
 
-<script>
-  const mv = document.getElementById('mv');
-  const title = document.getElementById('title');
-  const select = document.getElementById('carSelect');
+  <!-- BUTOANE: iPhone Quick Look (sigur) + Android AR -->
+  <div class="actions">
+    <a id="iosQuickLook" class="btn btn-ios" href="#" rel="ar">
+      🍏 iPhone: Vezi în cameră
+    </a>
 
-  const params = new URLSearchParams(location.search);
-  const initialId = params.get('car');
+    <button id="androidAR" class="btn btn-android" type="button">
+      🤖 Android: AR
+    </button>
+  </div>
 
-  fetch('data/cars.json')
-    .then(r => r.json())
-    .then(cars => {
-      cars.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.name;
-        select.appendChild(opt);
-      });
+  <script>
+    const mv = document.getElementById('mv');
+    const title = document.getElementById('title');
+    const select = document.getElementById('carSelect');
+    const iosQuickLook = document.getElementById('iosQuickLook');
+    const androidARBtn = document.getElementById('androidAR');
 
-      function pick(id){
-        return cars.find(c => c.id === id) || cars[0];
-      }
+    const params = new URLSearchParams(location.search);
+    const initialId = params.get('car');
 
-      function apply(car){
-        title.textContent = car.name;
-        mv.setAttribute('src', car.glb);
-        mv.setAttribute('ios-src', car.usdz);
+    let cars = [];
 
-        // URL shareable
-        const u = new URL(location.href);
-        u.searchParams.set('car', car.id);
-        history.replaceState({}, '', u);
-      }
+    function pick(id) {
+      return cars.find(c => c.id === id) || cars[0];
+    }
 
-      const start = pick(initialId);
-      select.value = start.id;
-      apply(start);
+    function apply(car) {
+      title.textContent = car.name;
 
-      select.addEventListener('change', () => apply(pick(select.value)));
+      // PREVIEW în pagină (GLB)
+      mv.setAttribute('src', car.glb);
+
+      // iPhone Quick Look (USDZ) – buton verde garantat
+      iosQuickLook.href = car.usdz;
+
+      // Pentru Android AR (model-viewer)
+      mv.setAttribute('ar', '');
+      mv.setAttribute('ar-modes', 'scene-viewer webxr');
+      mv.setAttribute('ios-src', car.usdz); // ok să rămână
+
+      // URL shareable
+      const u = new URL(location.href);
+      u.searchParams.set('car', car.id);
+      history.replaceState({}, '', u);
+    }
+
+    // Android: pornește AR la click
+    androidARBtn.addEventListener('click', () => {
+      // activateAR() există în model-viewer
+      if (mv.activateAR) mv.activateAR();
     });
-</script>
+
+    // Încarcă lista de mașini
+    fetch('data/cars.json')
+      .then(r => r.json())
+      .then(list => {
+        cars = list;
+
+        // Populează dropdown
+        cars.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          select.appendChild(opt);
+        });
+
+        // Selectare inițială (din URL sau prima mașină)
+        const start = pick(initialId);
+        select.value = start.id;
+        apply(start);
+
+        // La schimbare
+        select.addEventListener('change', () => apply(pick(select.value)));
+      });
+  </script>
 </body>
 </html>
