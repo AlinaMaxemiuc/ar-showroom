@@ -28,11 +28,5 @@
     "name": "VW Golf R",
     "glb": "models/golf_r.glb",
     "usdz": "models/golf_r.usdz"
-  },
-  {
-    "id": "mercedes_eclass",
-    "name": "Mercedes E-Class",
-    "glb": "models/mercedes_eclass.glb",
-    "usdz": "models/mercedes_eclass.usdz"
   }
 ]
