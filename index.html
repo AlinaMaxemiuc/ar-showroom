@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AR Car Showroom</title>
-  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/style.css">
 </head>
 
 <body>
@@ -12,8 +12,7 @@
 <header class="site-header">
   <h1>AR Car Showroom</h1>
   <p class="subtitle muted">
-    Vizualizează automobilele în mărime reală, direct în spațiul tău,
-    folosind Realitate Augmentată.
+    Alege o mașină, selectează culoarea și deschide AR Viewer.
   </p>
 
   <div class="toplinks">
@@ -35,13 +34,36 @@
       cars.forEach(car => {
         const card = document.createElement('div');
         card.className = 'card';
+
+        const savedColor = localStorage.getItem('color_' + car.id) || '#ff0000';
+
         card.innerHTML = `
           <h3>${car.name}</h3>
           <p class="muted">Model 3D interactiv · Realitate Augmentată</p>
-          <a class="btn" href="viewer.html?car=${car.id}">
+
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px">
+            <span class="muted">Culoare:</span>
+            <input type="color" value="${savedColor}" style="width:44px;height:38px;border:0;border-radius:10px;padding:0">
+          </div>
+
+          <a class="btn" style="margin-top:12px;display:inline-flex" href="#">
             📱 Vezi în AR
           </a>
         `;
+
+        const colorInput = card.querySelector('input[type="color"]');
+        const link = card.querySelector('a.btn');
+
+        function updateLink() {
+          const color = colorInput.value;
+          localStorage.setItem('color_' + car.id, color);
+          // trimitem culoarea în URL
+          link.href = `viewer.html?car=${encodeURIComponent(car.id)}&color=${encodeURIComponent(color)}`;
+        }
+
+        colorInput.addEventListener('input', updateLink);
+        updateLink();
+
         catalog.appendChild(card);
       });
     });

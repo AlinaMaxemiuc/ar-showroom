@@ -12,22 +12,10 @@
   </script>
 
   <style>
-    /* FIX CRITIC PENTRU SCROLL PE TELEFON */
-    html, body {
-      height: auto;
-      overflow-y: auto;
-    }
+    html, body { height: auto; overflow-y: auto; }
+    model-viewer { height: 55vh !important; }
 
-    /* Viewer mai mic pe mobil ca să vezi detaliile */
-    model-viewer {
-      height: 55vh !important;
-    }
-
-    /* Panou sub viewer */
-    .panel {
-      padding: 14px 18px 24px;
-    }
-
+    .panel { padding: 14px 18px 24px; }
     .panel-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -35,12 +23,7 @@
       max-width: 1100px;
       margin: 0 auto;
     }
-
-    @media (max-width: 700px) {
-      .panel-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    @media (max-width: 700px) { .panel-grid { grid-template-columns: 1fr; } }
 
     .box {
       background: rgba(255,255,255,.06);
@@ -49,45 +32,13 @@
       padding: 14px;
       backdrop-filter: blur(10px);
     }
+    .box h3 { margin: 0 0 10px; }
 
-    .box h3 {
-      margin: 0 0 10px;
-    }
-
-    .kv {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 6px 12px;
-    }
-
-    .kv div {
-      opacity: .92;
-    }
-
-    .controls {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    input[type="color"] {
-      width: 44px;
-      height: 38px;
-      border: 0;
-      border-radius: 10px;
-      padding: 0;
-    }
-
-    input[type="range"] {
-      width: 180px;
-    }
-
-    .muted2 {
-      opacity: .78;
-      font-size: .92rem;
-      margin-top: 6px;
-    }
+    .kv { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+    input[type="color"] { width: 44px; height: 38px; border: 0; border-radius: 10px; padding: 0; }
+    input[type="range"] { width: 180px; }
+    .muted2 { opacity: .78; font-size: .92rem; margin-top: 6px; }
   </style>
 </head>
 
@@ -102,7 +53,7 @@
   </div>
 
   <div class="muted" style="margin-top:6px">
-    Alege o mașină, personalizează și apasă „Vezi în cameră (AR)”.
+    Culoarea selectată în catalog se aplică automat pe modelul 3D (preview).
   </div>
 </header>
 
@@ -118,27 +69,16 @@
 
   <button
     slot="ar-button"
-    style="
-      position:absolute;
-      top:14px;
-      left:50%;
-      transform:translateX(-50%);
-      padding:12px 18px;
-      border-radius:999px;
-      border:0;
-      background:#2563eb;
-      color:#fff;
-      font-size:16px;
-      font-weight:800;">
+    style="position:absolute;top:14px;left:50%;transform:translateX(-50%);
+           padding:12px 18px;border-radius:999px;border:0;background:#2563eb;
+           color:#fff;font-size:16px;font-weight:800;">
     📱 Vezi în cameră (AR)
   </button>
-
 </model-viewer>
 
 <div class="panel">
   <div class="panel-grid">
 
-    <!-- DETALII -->
     <div class="box">
       <h3>Detalii mașină</h3>
       <div class="kv">
@@ -149,11 +89,10 @@
         <div>Transmisie:</div><div id="d_drive">–</div>
       </div>
       <div class="muted2">
-        Datele sunt încărcate din <code>data/cars.json</code>.
+        Pe iPhone, AR se deschide prin Quick Look (USDZ), care nu permite control complet asupra materialelor din browser.
       </div>
     </div>
 
-    <!-- CONTROALE -->
     <div class="box">
       <h3>Personalizare</h3>
 
@@ -171,10 +110,6 @@
         <label>Viteză rotire:</label>
         <input id="rotateSpeed" type="range" min="0" max="60" value="30">
         <span id="rotateSpeedVal" class="muted">30</span>
-      </div>
-
-      <div class="muted2">
-        Culoarea se aplică materialelor caroseriei, dacă modelul permite.
       </div>
     </div>
 
@@ -199,13 +134,12 @@
 
   const params = new URLSearchParams(location.search);
   const initialId = params.get('car');
+  const initialColor = params.get('color'); // <- vine din index
 
   let cars = [];
-  let lastColor = paintColor.value;
+  let lastColor = '#ff0000';
 
-  function pick(id) {
-    return cars.find(c => c.id === id) || cars[0];
-  }
+  function pick(id) { return cars.find(c => c.id === id) || cars[0]; }
 
   function applyDetails(car) {
     d_year.textContent = car.year || '–';
@@ -217,10 +151,8 @@
 
   function applyControls() {
     rotateSpeedVal.textContent = rotateSpeed.value;
-
     if (autoRotate.checked) mv.setAttribute('auto-rotate', '');
     else mv.removeAttribute('auto-rotate');
-
     mv.setAttribute('rotation-per-second', `${rotateSpeed.value}deg`);
   }
 
@@ -236,13 +168,10 @@
 
   function applyColor(hex) {
     if (!mv.model || !mv.model.materials) return;
-
     const rgba = hexToRgba01(hex);
     mv.model.materials.forEach(mat => {
       const pbr = mat.pbrMetallicRoughness;
-      if (pbr && pbr.setBaseColorFactor) {
-        pbr.setBaseColorFactor(rgba);
-      }
+      if (pbr && pbr.setBaseColorFactor) pbr.setBaseColorFactor(rgba);
     });
   }
 
@@ -254,7 +183,11 @@
 
     const u = new URL(location.href);
     u.searchParams.set('car', car.id);
+    u.searchParams.set('color', lastColor);
     history.replaceState({}, '', u);
+
+    // salvează culoarea per mașină
+    localStorage.setItem('color_' + car.id, lastColor);
   }
 
   mv.addEventListener('load', () => {
@@ -265,6 +198,13 @@
   paintColor.addEventListener('input', () => {
     lastColor = paintColor.value;
     applyColor(lastColor);
+
+    // update URL + storage
+    const carId = select.value;
+    localStorage.setItem('color_' + carId, lastColor);
+    const u = new URL(location.href);
+    u.searchParams.set('color', lastColor);
+    history.replaceState({}, '', u);
   });
 
   autoRotate.addEventListener('change', applyControls);
@@ -284,10 +224,20 @@
 
       const start = pick(initialId);
       select.value = start.id;
+
+      // culoare inițială: din URL -> storage -> default
+      const saved = localStorage.getItem('color_' + start.id);
+      lastColor = initialColor || saved || '#ff0000';
+      paintColor.value = lastColor;
+
       applyCar(start);
 
       select.addEventListener('change', () => {
-        applyCar(pick(select.value));
+        const car = pick(select.value);
+        const saved2 = localStorage.getItem('color_' + car.id);
+        lastColor = saved2 || lastColor || '#ff0000';
+        paintColor.value = lastColor;
+        applyCar(car);
       });
     });
 </script>
