@@ -1,51 +1,51 @@
 <!doctype html>
 <html lang="ro">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>AR Car Showroom</title>
-  <style>
-    body{margin:0;font-family:system-ui;background:#0f172a;color:#fff}
-    header{padding:18px}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;padding:14px}
-    .card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:14px}
-    h2{margin:0 0 6px}
-    .muted{opacity:.85}
-    button,a.btn{
-      display:inline-block;margin-top:10px;padding:10px 12px;border-radius:12px;
-      border:0;background:#2563eb;color:#fff;font-weight:700;text-decoration:none;cursor:pointer
-    }
-    .toplinks a{color:#93c5fd;text-decoration:none;margin-right:12px}
-  </style>
+  <link rel="stylesheet" href="assets/styles.css">
 </head>
 
 <body>
-  <header>
-    <h2>AR Car Showroom</h2>
-    <div class="muted">Catalog web + AR Viewer (iPhone/Android). Alege o mașină și deschide AR Viewer.</div>
-    <div class="toplinks" style="margin-top:10px">
-      <a href="viewer.html">Deschide AR Viewer</a>
-      <a href="about.html">Despre</a>
-    </div>
-  </header>
 
+<header class="site-header">
+  <h1>AR Car Showroom</h1>
+  <p class="subtitle muted">
+    Vizualizează automobilele în mărime reală, direct în spațiul tău,
+    folosind Realitate Augmentată.
+  </p>
+
+  <div class="toplinks">
+    <a class="btn btn-ghost" href="viewer.html">AR Viewer</a>
+    <a class="btn btn-ghost" href="about.html">Despre proiect</a>
+  </div>
+</header>
+
+<div class="container">
   <div class="grid" id="catalog"></div>
+</div>
 
 <script>
-  const catalog = document.getElementById('catalog');
+  fetch('data/cars.json')
+    .then(r => r.json())
+    .then(cars => {
+      const catalog = document.getElementById('catalog');
 
-  fetch('data/cars.json').then(r=>r.json()).then(cars=>{
-    cars.forEach(car=>{
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <h3 style="margin:0 0 6px">${car.name}</h3>
-        <div class="muted">GLB: ${car.glb}<br>USDZ: ${car.usdz}</div>
-        <a class="btn" href="viewer.html?car=${encodeURIComponent(car.id)}">📱 Deschide în AR Viewer</a>
-      `;
-      catalog.appendChild(card);
+      cars.forEach(car => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.innerHTML = `
+          <h3>${car.name}</h3>
+          <p class="muted">Model 3D interactiv · Realitate Augmentată</p>
+          <a class="btn" href="viewer.html?car=${car.id}">
+            📱 Vezi în AR
+          </a>
+        `;
+        catalog.appendChild(card);
+      });
     });
-  });
 </script>
+
 </body>
 </html>
