@@ -3,30 +3,50 @@
     "id": "audi_tt",
     "name": "Audi TT",
     "glb": "models/audi_tt.glb",
-    "usdz": "models/audi_tt.usdz"
+    "usdz": "models/audi_tt.usdz",
+    "year": 2018,
+    "engine": "2.0",
+    "power": "230 CP",
+    "drive": "Automat"
   },
   {
     "id": "bmw_e46",
     "name": "BMW E46",
     "glb": "models/bmw_e46.glb",
-    "usdz": "models/bmw_e46.usdz"
+    "usdz": "models/bmw_e46.usdz",
+    "year": 2004,
+    "engine": "3.0",
+    "power": "231 CP",
+    "drive": "Manual"
   },
   {
     "id": "bmw_m4",
     "name": "BMW M4",
     "glb": "models/bmw_m4.glb",
-    "usdz": "models/bmw_m4.usdz"
+    "usdz": "models/bmw_m4.usdz",
+    "year": 2022,
+    "engine": "3.0",
+    "power": "510 CP",
+    "drive": "Automat"
   },
   {
     "id": "ford_f150",
     "name": "Ford F-150",
     "glb": "models/ford_f150.glb",
-    "usdz": "models/ford_f150.usdz"
+    "usdz": "models/ford_f150.usdz",
+    "year": 2020,
+    "engine": "5.0",
+    "power": "400 CP",
+    "drive": "Automat"
   },
   {
     "id": "golf_r",
     "name": "VW Golf R",
     "glb": "models/golf_r.glb",
-    "usdz": "models/golf_r.usdz"
+    "usdz": "models/golf_r.usdz",
+    "year": 2019,
+    "engine": "2.0",
+    "power": "300 CP",
+    "drive": "Automat"
   }
 ]
