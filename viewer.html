@@ -7,38 +7,58 @@
 
   <link rel="stylesheet" href="assets/style.css">
 
-  <script type="module"
-    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-  </script>
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
   <style>
     html, body { height: auto; overflow-y: auto; }
     model-viewer { height: 55vh !important; }
 
     .panel { padding: 14px 18px 24px; }
-    .panel-grid {
-      display: grid;
+    .panel-grid{
+      display:grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      max-width: 1100px;
-      margin: 0 auto;
+      gap:14px;
+      max-width:1100px;
+      margin:0 auto;
     }
-    @media (max-width: 700px) { .panel-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 700px){ .panel-grid{ grid-template-columns: 1fr; } }
 
-    .box {
+    .box{
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.12);
       border-radius: 18px;
       padding: 14px;
       backdrop-filter: blur(10px);
     }
-    .box h3 { margin: 0 0 10px; }
+    .box h3{ margin:0 0 10px; }
 
-    .kv { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; }
-    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    input[type="color"] { width: 44px; height: 38px; border: 0; border-radius: 10px; padding: 0; }
-    input[type="range"] { width: 180px; }
-    .muted2 { opacity: .78; font-size: .92rem; margin-top: 6px; }
+    .kv{ display:grid; grid-template-columns: 120px 1fr; gap: 6px 12px; }
+    .controls{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+    input[type="color"]{ width:44px;height:38px;border:0;border-radius:10px;padding:0; }
+    input[type="range"]{ width:180px; }
+    .muted2{ opacity:.78; font-size:.92rem; margin-top:6px; }
+
+    .pill{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.12);
+      font-weight:700;
+      margin-top:10px;
+    }
+
+    .swatches{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+    .swatch{
+      display:flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      cursor:pointer;
+      user-select:none;
+      font-weight:700;
+    }
+    .dot{ width:14px; height:14px; border-radius:50%; border:1px solid rgba(255,255,255,.35); }
   </style>
 </head>
 
@@ -51,9 +71,8 @@
     <a href="index.html">Catalog</a>
     <a href="about.html">Despre</a>
   </div>
-
   <div class="muted" style="margin-top:6px">
-    Culoarea selectată în catalog se aplică automat pe modelul 3D (preview).
+    Preview (GLB): culoare live. iPhone AR (USDZ): pentru BMW M4 folosește variante pre-colorate (black/gray/green).
   </div>
 </header>
 
@@ -88,16 +107,35 @@
         <div>0–100:</div><div id="d_accel">–</div>
         <div>Transmisie:</div><div id="d_drive">–</div>
       </div>
-      <div class="muted2">
-        Pe iPhone, AR se deschide prin Quick Look (USDZ), care nu permite control complet asupra materialelor din browser.
+
+      <div id="arInfo" class="pill">AR: USDZ standard</div>
+
+      <div id="m4Swatches" style="display:none">
+        <div class="muted2" style="margin-top:10px">
+          BMW M4 (demo AR): alege una din culorile disponibile în USDZ și apoi apasă AR.
+        </div>
+
+        <div class="swatches">
+          <div class="swatch" data-variant="black" data-hex="#111111">
+            <span class="dot" style="background:#111111"></span> Black (USDZ)
+          </div>
+          <div class="swatch" data-variant="gray" data-hex="#9ca3af">
+            <span class="dot" style="background:#9ca3af"></span> Gray (USDZ)
+          </div>
+          <div class="swatch" data-variant="green" data-hex="#16a34a">
+            <span class="dot" style="background:#16a34a"></span> Green (USDZ)
+          </div>
+        </div>
       </div>
+
+      <div class="muted2">Datele sunt încărcate din <code>data/cars.json</code> (fără backend).</div>
     </div>
 
     <div class="box">
       <h3>Personalizare</h3>
 
       <div class="controls">
-        <label>Culoare:</label>
+        <label>Culoare (preview):</label>
         <input id="paintColor" type="color" value="#ff0000">
 
         <label>
@@ -110,6 +148,10 @@
         <label>Viteză rotire:</label>
         <input id="rotateSpeed" type="range" min="0" max="60" value="30">
         <span id="rotateSpeedVal" class="muted">30</span>
+      </div>
+
+      <div class="muted2">
+        Notă: pe iPhone, AR se deschide în Quick Look. Pentru “culoare în AR”, BMW M4 folosește fișiere USDZ diferite.
       </div>
     </div>
 
@@ -132,14 +174,19 @@
   const d_accel = document.getElementById('d_accel');
   const d_drive = document.getElementById('d_drive');
 
+  const arInfo = document.getElementById('arInfo');
+  const m4Swatches = document.getElementById('m4Swatches');
+
   const params = new URLSearchParams(location.search);
   const initialId = params.get('car');
-  const initialColor = params.get('color'); // <- vine din index
 
   let cars = [];
-  let lastColor = '#ff0000';
+  let currentCar = null;
+  let lastColor = paintColor.value;
 
-  function pick(id) { return cars.find(c => c.id === id) || cars[0]; }
+  function pick(id) {
+    return cars.find(c => c.id === id) || cars[0];
+  }
 
   function applyDetails(car) {
     d_year.textContent = car.year || '–';
@@ -166,7 +213,8 @@
     ];
   }
 
-  function applyColor(hex) {
+  // recolor preview (GLB)
+  function applyColorToPreview(hex) {
     if (!mv.model || !mv.model.materials) return;
     const rgba = hexToRgba01(hex);
     mv.model.materials.forEach(mat => {
@@ -175,40 +223,80 @@
     });
   }
 
+  // iPhone AR: setează ios-src pe baza variantelor USDZ
+  function setIosSrcVariant(car, variantKey) {
+    // default
+    let iosSrc = car.usdz;
+    let label = 'AR: USDZ standard';
+
+    if (car.usdzVariants && car.usdzVariants[variantKey]) {
+      iosSrc = car.usdzVariants[variantKey];
+      label = `AR: BMW M4 USDZ (${variantKey})`;
+    } else if (car.usdzVariants) {
+      label = 'AR: USDZ standard (fără variantă)';
+    }
+
+    mv.setAttribute('ios-src', iosSrc);
+    arInfo.textContent = label;
+  }
+
   function applyCar(car) {
+    currentCar = car;
+
     title.textContent = car.name;
     mv.setAttribute('src', car.glb);
+
+    // iPhone AR source default
     mv.setAttribute('ios-src', car.usdz);
+
     applyDetails(car);
+
+    // ar label + show/hide swatches
+    if (car.id === 'bmw_m4' && car.usdzVariants) {
+      m4Swatches.style.display = 'block';
+      // default pe gray (că ai bmw_m4_gray.usdz)
+      setIosSrcVariant(car, 'gray');
+    } else {
+      m4Swatches.style.display = 'none';
+      arInfo.textContent = 'AR: USDZ standard';
+    }
 
     const u = new URL(location.href);
     u.searchParams.set('car', car.id);
-    u.searchParams.set('color', lastColor);
     history.replaceState({}, '', u);
-
-    // salvează culoarea per mașină
-    localStorage.setItem('color_' + car.id, lastColor);
   }
 
   mv.addEventListener('load', () => {
     applyControls();
-    applyColor(lastColor);
+    applyColorToPreview(lastColor);
   });
 
   paintColor.addEventListener('input', () => {
     lastColor = paintColor.value;
-    applyColor(lastColor);
-
-    // update URL + storage
-    const carId = select.value;
-    localStorage.setItem('color_' + carId, lastColor);
-    const u = new URL(location.href);
-    u.searchParams.set('color', lastColor);
-    history.replaceState({}, '', u);
+    applyColorToPreview(lastColor);
   });
 
   autoRotate.addEventListener('change', applyControls);
   rotateSpeed.addEventListener('input', applyControls);
+
+  // click swatches (BMW M4 AR variants)
+  m4Swatches.addEventListener('click', (e) => {
+    const btn = e.target.closest('.swatch');
+    if (!btn || !currentCar) return;
+
+    const variant = btn.getAttribute('data-variant');
+    const hex = btn.getAttribute('data-hex');
+
+    // set preview color to match swatch (looks consistent)
+    if (hex) {
+      paintColor.value = hex;
+      lastColor = hex;
+      applyColorToPreview(hex);
+    }
+
+    // set AR ios-src to variant USDZ
+    setIosSrcVariant(currentCar, variant);
+  });
 
   fetch('data/cars.json')
     .then(r => r.json())
@@ -222,23 +310,12 @@
         select.appendChild(opt);
       });
 
-      const start = pick(initialId);
+      // default: BMW M4 (demo AR)
+      const start = pick(initialId || 'bmw_m4');
       select.value = start.id;
-
-      // culoare inițială: din URL -> storage -> default
-      const saved = localStorage.getItem('color_' + start.id);
-      lastColor = initialColor || saved || '#ff0000';
-      paintColor.value = lastColor;
-
       applyCar(start);
 
-      select.addEventListener('change', () => {
-        const car = pick(select.value);
-        const saved2 = localStorage.getItem('color_' + car.id);
-        lastColor = saved2 || lastColor || '#ff0000';
-        paintColor.value = lastColor;
-        applyCar(car);
-      });
+      select.addEventListener('change', () => applyCar(pick(select.value)));
     });
 </script>
 
