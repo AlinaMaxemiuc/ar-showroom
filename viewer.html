@@ -12,17 +12,36 @@
   </script>
 
   <style>
-    /* mic panel peste viewer, fără să-ți strice CSS-ul */
-    .panel {
-      max-width: 1100px;
-      margin: 12px auto 0;
-      padding: 0 18px;
+    /* FIX CRITIC PENTRU SCROLL PE TELEFON */
+    html, body {
+      height: auto;
+      overflow-y: auto;
     }
+
+    /* Viewer mai mic pe mobil ca să vezi detaliile */
+    model-viewer {
+      height: 55vh !important;
+    }
+
+    /* Panou sub viewer */
+    .panel {
+      padding: 14px 18px 24px;
+    }
+
     .panel-grid {
       display: grid;
-      grid-template-columns: 1.2fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 14px;
+      max-width: 1100px;
+      margin: 0 auto;
     }
+
+    @media (max-width: 700px) {
+      .panel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .box {
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.12);
@@ -30,17 +49,44 @@
       padding: 14px;
       backdrop-filter: blur(10px);
     }
-    .box h3 { margin: 0 0 10px; }
-    .kv { display: grid; grid-template-columns: 120px 1fr; gap: 6px 12px; }
-    .kv div { opacity: .92; }
-    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
-    .controls label { opacity: .9; font-weight: 600; }
-    input[type="color"] { width: 44px; height: 38px; border: 0; border-radius: 10px; padding: 0; }
-    input[type="range"] { width: 180px; }
-    .muted2 { opacity: .78; font-size: .92rem; margin-top: 6px; }
-    @media (max-width: 800px) {
-      .panel-grid { grid-template-columns: 1fr; }
-      input[type="range"] { width: 100%; }
+
+    .box h3 {
+      margin: 0 0 10px;
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 6px 12px;
+    }
+
+    .kv div {
+      opacity: .92;
+    }
+
+    .controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    input[type="color"] {
+      width: 44px;
+      height: 38px;
+      border: 0;
+      border-radius: 10px;
+      padding: 0;
+    }
+
+    input[type="range"] {
+      width: 180px;
+    }
+
+    .muted2 {
+      opacity: .78;
+      font-size: .92rem;
+      margin-top: 6px;
     }
   </style>
 </head>
@@ -56,7 +102,7 @@
   </div>
 
   <div class="muted" style="margin-top:6px">
-    Alege o mașină, schimbă culoarea / rotirea și apasă „Vezi în cameră (AR)”.
+    Alege o mașină, personalizează și apasă „Vezi în cameră (AR)”.
   </div>
 </header>
 
@@ -73,9 +119,17 @@
   <button
     slot="ar-button"
     style="
-      position:absolute; top:14px; left:50%; transform:translateX(-50%);
-      padding:12px 18px; border-radius:999px; border:0;
-      background:#2563eb; color:#fff; font-size:16px; font-weight:800;">
+      position:absolute;
+      top:14px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:12px 18px;
+      border-radius:999px;
+      border:0;
+      background:#2563eb;
+      color:#fff;
+      font-size:16px;
+      font-weight:800;">
     📱 Vezi în cameră (AR)
   </button>
 
@@ -83,18 +137,19 @@
 
 <div class="panel">
   <div class="panel-grid">
+
     <!-- DETALII -->
     <div class="box">
       <h3>Detalii mașină</h3>
-      <div class="kv" id="details">
+      <div class="kv">
         <div>An:</div><div id="d_year">–</div>
         <div>Motor:</div><div id="d_engine">–</div>
         <div>Putere:</div><div id="d_power">–</div>
         <div>0–100:</div><div id="d_accel">–</div>
-        <div>Tracțiune:</div><div id="d_drive">–</div>
+        <div>Transmisie:</div><div id="d_drive">–</div>
       </div>
       <div class="muted2">
-        *Datele sunt încărcate din <code>data/cars.json</code> (fără backend).
+        Datele sunt încărcate din <code>data/cars.json</code>.
       </div>
     </div>
 
@@ -103,26 +158,26 @@
       <h3>Personalizare</h3>
 
       <div class="controls">
-        <label for="paintColor">Culoare:</label>
+        <label>Culoare:</label>
         <input id="paintColor" type="color" value="#ff0000">
 
-        <label style="margin-left:6px">
+        <label>
           <input id="autoRotate" type="checkbox" checked>
           Auto-rotate
         </label>
       </div>
 
       <div class="controls" style="margin-top:12px">
-        <label for="rotateSpeed">Viteză rotire:</label>
+        <label>Viteză rotire:</label>
         <input id="rotateSpeed" type="range" min="0" max="60" value="30">
         <span id="rotateSpeedVal" class="muted">30</span>
       </div>
 
       <div class="muted2">
-        Notă: schimbarea culorii funcționează dacă modelul are materiale care pot fi tintuite.
-        Dacă o mașină are textura “baked”, efectul poate fi mai mic.
+        Culoarea se aplică materialelor caroseriei, dacă modelul permite.
       </div>
     </div>
+
   </div>
 </div>
 
@@ -146,42 +201,10 @@
   const initialId = params.get('car');
 
   let cars = [];
-  let lastAppliedColor = paintColor.value;
+  let lastColor = paintColor.value;
 
   function pick(id) {
     return cars.find(c => c.id === id) || cars[0];
-  }
-
-  function hexToRgb01(hex) {
-    const h = hex.replace('#','').trim();
-    const r = parseInt(h.slice(0,2), 16) / 255;
-    const g = parseInt(h.slice(2,4), 16) / 255;
-    const b = parseInt(h.slice(4,6), 16) / 255;
-    return [r,g,b,1];
-  }
-
-  // Aplică culoarea pe materiale (tint)
-  function applyColorToModel(hex) {
-    // dacă modelul nu e încărcat încă, nu putem accesa materials
-    if (!mv.model || !mv.model.materials) return;
-
-    const rgba = hexToRgb01(hex);
-
-    // Strategie: caută un material “paint-like”, dacă există; altfel aplică pe toate
-    const materials = mv.model.materials;
-    const paintCandidates = materials.filter(m => {
-      const n = (m.name || '').toLowerCase();
-      return n.includes('paint') || n.includes('car') || n.includes('body') || n.includes('shell');
-    });
-
-    const target = paintCandidates.length ? paintCandidates : materials;
-
-    target.forEach(mat => {
-      const pbr = mat.pbrMetallicRoughness;
-      if (pbr && pbr.setBaseColorFactor) {
-        pbr.setBaseColorFactor(rgba);
-      }
-    });
   }
 
   function applyDetails(car) {
@@ -192,46 +215,61 @@
     d_drive.textContent = car.drive || '–';
   }
 
-  function applyControlsToViewer() {
-    // rotire
+  function applyControls() {
+    rotateSpeedVal.textContent = rotateSpeed.value;
+
     if (autoRotate.checked) mv.setAttribute('auto-rotate', '');
     else mv.removeAttribute('auto-rotate');
 
-    // viteza rotire (deg/sec)
-    rotateSpeedVal.textContent = rotateSpeed.value;
     mv.setAttribute('rotation-per-second', `${rotateSpeed.value}deg`);
+  }
+
+  function hexToRgba01(hex) {
+    const h = hex.replace('#','');
+    return [
+      parseInt(h.slice(0,2),16)/255,
+      parseInt(h.slice(2,4),16)/255,
+      parseInt(h.slice(4,6),16)/255,
+      1
+    ];
+  }
+
+  function applyColor(hex) {
+    if (!mv.model || !mv.model.materials) return;
+
+    const rgba = hexToRgba01(hex);
+    mv.model.materials.forEach(mat => {
+      const pbr = mat.pbrMetallicRoughness;
+      if (pbr && pbr.setBaseColorFactor) {
+        pbr.setBaseColorFactor(rgba);
+      }
+    });
   }
 
   function applyCar(car) {
     title.textContent = car.name;
-
     mv.setAttribute('src', car.glb);
     mv.setAttribute('ios-src', car.usdz);
-
     applyDetails(car);
 
-    // URL shareable
     const u = new URL(location.href);
     u.searchParams.set('car', car.id);
     history.replaceState({}, '', u);
   }
 
-  // După ce se încarcă modelul, reaplicăm culoarea curentă
   mv.addEventListener('load', () => {
-    applyControlsToViewer();
-    applyColorToModel(lastAppliedColor);
+    applyControls();
+    applyColor(lastColor);
   });
 
-  // UI events
   paintColor.addEventListener('input', () => {
-    lastAppliedColor = paintColor.value;
-    applyColorToModel(lastAppliedColor);
+    lastColor = paintColor.value;
+    applyColor(lastColor);
   });
 
-  autoRotate.addEventListener('change', applyControlsToViewer);
-  rotateSpeed.addEventListener('input', applyControlsToViewer);
+  autoRotate.addEventListener('change', applyControls);
+  rotateSpeed.addEventListener('input', applyControls);
 
-  // Init
   fetch('data/cars.json')
     .then(r => r.json())
     .then(list => {
@@ -248,7 +286,9 @@
       select.value = start.id;
       applyCar(start);
 
-      select.addEventListener('change', () => applyCar(pick(select.value)));
+      select.addEventListener('change', () => {
+        applyCar(pick(select.value));
+      });
     });
 </script>
 

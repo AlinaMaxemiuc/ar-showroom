@@ -7,6 +7,7 @@
     "year": 2018,
     "engine": "2.0",
     "power": "230 CP",
+    "accel": "5.3 s",
     "drive": "Automat"
   },
   {
@@ -17,6 +18,7 @@
     "year": 2004,
     "engine": "3.0",
     "power": "231 CP",
+    "accel": "6.5 s",
     "drive": "Manual"
   },
   {
@@ -27,6 +29,7 @@
     "year": 2022,
     "engine": "3.0",
     "power": "510 CP",
+    "accel": "3.9 s",
     "drive": "Automat"
   },
   {
@@ -37,6 +40,7 @@
     "year": 2020,
     "engine": "5.0",
     "power": "400 CP",
+    "accel": "6.0 s",
     "drive": "Automat"
   },
   {
@@ -47,6 +51,7 @@
     "year": 2019,
     "engine": "2.0",
     "power": "300 CP",
+    "accel": "4.9 s",
     "drive": "Automat"
   }
 ]
